@@ -1,8 +1,8 @@
 """End-to-end examples: all three auth flows, then submit + track a TES task."""
 
-from tes_client import ClientCredentialsAuth, TaskTracker, TesClient, TesTask
+from tes_client import ClientCredentialsAuth, TaskTracker, TesClient, TesTask, NoAuth
 
-TES_URL = "https://tes.example.org"
+TES_URL = "http://192.168.99.53:8000"
 KC_URL = "https://keycloak.example.org"
 REALM = "my-realm"
 
@@ -10,12 +10,7 @@ REALM = "my-realm"
 # Option 1: Client credentials (machine-to-machine, no browser)       #
 # ------------------------------------------------------------------ #
 
-auth = ClientCredentialsAuth(
-    base_url=KC_URL,
-    realm=REALM,
-    client_id="tes-service-account",
-    client_secret="super-secret",
-)
+ 
 
 # ------------------------------------------------------------------ #
 # Option 2: Username + password (ROPC)                                 #
@@ -51,22 +46,19 @@ auth = ClientCredentialsAuth(
 # Client — same regardless of auth method                             #
 # ------------------------------------------------------------------ #
 
-client = TesClient(tes_url=TES_URL, token_manager=auth)
+client = TesClient(tes_url=TES_URL, token_manager=NoAuth())
 
 # ------------------------------------------------------------------ #
 # Build the task with the fluent builder                               #
 # ------------------------------------------------------------------ #
 
 task = (
-    TesTask(name="my-analysis")
+    TesTask(name="my-analysis2")
     .set_project_tag("DPUK_Project55")
     .set_tres_tag("DPUK")
-    .add_input(path="/inputs/data.bam", url="s3://my-bucket/data.bam")
-    .add_output(path="/outputs/result.vcf", url="s3://my-bucket/results/result.vcf")
-    .set_resources(cpu_cores=4, ram_gb=8, disk_gb=50)
     .add_executor(
-        image="biocontainers/samtools:1.18",
-        command=["samtools", "view", "-o", "/outputs/result.vcf", "/inputs/data.bam"],
+        image="ubuntu",
+        command=["echo", "Hello World"],
     )
 )
 
