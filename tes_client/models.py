@@ -140,8 +140,27 @@ class TesTask(BaseModel):
         self.resources = TesResources(**kwargs)
         return self
 
-    def add_executor(self, image: str, command: list[str], **kwargs: Any) -> "TesTask":
-        self.executors.append(TesExecutor(image=image, command=command, **kwargs))
+    def add_executor(
+        self,
+        image: str,
+        command: list[str],
+        workdir: str | None = None,
+        stdin: str | None = None,
+        stdout: str | None = None,
+        stderr: str | None = None,
+        env: dict[str, str] | None = None,
+        ignore_error: bool | None = None,
+    ) -> "TesTask":
+        self.executors.append(TesExecutor(
+            image=image,
+            command=command,
+            workdir=workdir,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr,
+            env=env,
+            ignore_error=ignore_error,
+        ))
         return self
 
     def set_project_tag(self, project: str) -> "TesTask":

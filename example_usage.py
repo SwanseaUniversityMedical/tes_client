@@ -10,7 +10,12 @@ REALM = "my-realm"
 # Option 1: Client credentials (machine-to-machine, no browser)       #
 # ------------------------------------------------------------------ #
 
- 
+# auth = ClientCredentialsAuth(
+#     base_url=KC_URL,
+#     realm=REALM,
+#     client_id="tes-client",
+#     client_secret="my-client-secret",
+# )
 
 # ------------------------------------------------------------------ #
 # Option 2: Username + password (ROPC)                                 #
