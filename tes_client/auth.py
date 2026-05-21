@@ -49,6 +49,18 @@ class _CachingTokenManager(ABC):
     def auth_header(self) -> dict[str, str]:
         return {"Authorization": f"Bearer {self.token}"}
 
+    def is_valid(self) -> bool:
+        """Return True if the cached token is still usable without a network call."""
+        return bool(self._access_token) and time.monotonic() < self._expires_at - self._REFRESH_BUFFER
+
+    def ensure_valid(self) -> None:
+        """Trigger re-authentication now if the token is expired or missing.
+
+        Useful in long-running scripts to proactively refresh before a batch of
+        calls rather than letting the first call fail mid-flight.
+        """
+        _ = self.token  # delegate to existing refresh/fetch logic
+
     def _store(self, payload: dict[str, Any]) -> None:
         self._access_token = payload["access_token"]
         self._refresh_token = payload.get("refresh_token")
@@ -85,6 +97,12 @@ class NoAuth:
 
     def auth_header(self) -> dict[str, str]:
         return {}
+
+    def is_valid(self) -> bool:
+        return True
+
+    def ensure_valid(self) -> None:
+        pass
 
 
 # ------------------------------------------------------------------ #

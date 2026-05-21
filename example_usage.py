@@ -51,7 +51,8 @@ REALM = "my-realm"
 # Client — same regardless of auth method                             #
 # ------------------------------------------------------------------ #
 
-client = TesClient(tes_url=TES_URL, token_manager=NoAuth())
+auth = NoAuth()
+client = TesClient(tes_url=TES_URL, token_manager=auth)
 
 # ------------------------------------------------------------------ #
 # Build the task with the fluent builder                               #
@@ -72,6 +73,14 @@ task = (
 # ------------------------------------------------------------------ #
 
 print(task.submission_json())
+
+# ------------------------------------------------------------------ #
+# Optionally check / refresh auth before submitting                    #
+# ------------------------------------------------------------------ #
+
+if not auth.is_valid():
+    print("Token expired — re-authenticating…")
+auth.ensure_valid()   # no-op if already valid; re-auths silently if not
 
 # ------------------------------------------------------------------ #
 # Submit and track                                                     #

@@ -94,6 +94,34 @@ On first use this opens your default browser at the Keycloak login page and wait
 
 All four auth classes are drop-in replacements — the rest of the code is identical regardless of which you choose.
 
+#### Checking and refreshing auth in scripts
+
+Every auth class exposes two helpers for long-running scripts where a token may expire mid-run:
+
+| Method | Description |
+|---|---|
+| `auth.is_valid()` | Returns `True` if the cached token is still usable — no network call. |
+| `auth.ensure_valid()` | Re-authenticates now if the token is expired or missing; no-op if still valid. |
+
+`ensure_valid()` uses the same logic as `auth_header()` — it reuses a refresh token where available, and only falls back to a full grant (or browser pop-up for `AuthorizationCodeAuth`) when necessary.
+
+```python
+# Before a batch of submissions in a long-running script
+if not auth.is_valid():
+    print("Token expired — re-authenticating…")
+auth.ensure_valid()
+
+task_id = client.submit(task)
+```
+
+Or in a polling loop:
+
+```python
+for item in work_queue:
+    auth.ensure_valid()   # silent no-op if token is still good
+    client.submit(build_task(item))
+```
+
 ---
 
 ### 2. Create a client
